@@ -1,50 +1,95 @@
-#include <iostream>
-using namespace std;
+#include "sjf.h"
 
-void sjfScheduling(int bt[], int n)
+// Define static members
+std::ifstream SJF::in;
+std::vector<int> SJF::processId;
+std::vector<int> SJF::burstTime;
+std::vector<int> SJF::waitTime;
+std::vector<int> SJF::turnaroundTime;
+std::vector<int> SJF::responseTime;
+
+SJF::SJF(const std::string &inputfile)
 {
-    int p[20], wt[20], tat[20], total = 0, totalT = 0, pos, temp;
+    // Open the input file
+    in.open(inputfile);
 
-    for (int i = 0; i < n; i++)
+    // Initialize averages
+    avgWaitTime = 0.0;
+    avgTurnaroundTime = 0.0;
+    avgResponseTime = 0.0;
+
+    // Check if the file is successfully opened
+    if (!in.is_open())
     {
-        p[i] = i + 1;
+        std::cerr << "Error opening file." << std::endl;
+        exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < n; i++)
+    // Read data from the file and initialize vectors
+    while (std::getline(in, line))
     {
-        pos = i;
-        for (int j = i + 1; j < n; j++)
-        {
-            if (bt[j] < bt[pos])
-                pos = j;
-        }
-        temp = bt[i];
-        bt[i] = bt[pos];
-        bt[pos] = temp;
-        temp = p[i];
-        p[i] = p[pos];
-        p[pos] = temp;
+        int pid, bt;
+        char comma;
+        in >> pid >> comma >> bt;
+        processId.push_back(pid);
+        burstTime.push_back(bt);
     }
 
-    wt[0] = 0;
-    for (int i = 1; i < n; i++)
+    // Close the file
+    in.close();
+}
+
+void SJF::calcWaitTime()
+{
+    waitTime.resize(processId.size());
+    waitTime[0] = 0;
+
+    for (size_t i = 1; i < processId.size(); ++i)
     {
-        wt[i] = 0;
-        for (int j = 0; j < i; j++)
-            wt[i] += bt[j];
-        total += wt[i];
+        waitTime[i] = burstTime[i - 1] + waitTime[i - 1];
+    }
+}
+
+void SJF::calcTurnaroundTime()
+{
+    turnaroundTime.resize(processId.size());
+
+    for (size_t i = 0; i < processId.size(); ++i)
+    {
+        turnaroundTime[i] = burstTime[i] + waitTime[i];
+    }
+}
+
+void SJF::calcResponseTime()
+{
+    responseTime.resize(processId.size());
+    responseTime[0] = 0;
+
+    for (size_t i = 1; i < processId.size(); ++i)
+    {
+        responseTime[i] = burstTime[i - 1] + responseTime[i - 1];
+    }
+}
+
+void SJF::printResults()
+{
+    std::cout << "Process ID\tBurst Time\tTurnaround Time\tWaiting Time\tResponse Time\n";
+
+    for (size_t i = 0; i < processId.size(); ++i)
+    {
+        std::cout << processId[i] << "\t\t" << burstTime[i] << "\t\t" << turnaroundTime[i] << "\t\t"
+                  << waitTime[i] << "\t\t" << responseTime[i] << "\n";
+
+        avgWaitTime += waitTime[i];
+        avgTurnaroundTime += turnaroundTime[i];
+        avgResponseTime += responseTime[i];
     }
 
-    float avg_wt = (float)total / n;
-    cout << "\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n";
-    for (int i = 0; i < n; i++)
-    {
-        tat[i] = bt[i] + wt[i];
-        totalT += tat[i];
-        cout << "p" << p[i] << "\t\t" << bt[i] << "\t\t" << wt[i] << "\t\t" << tat[i] << endl;
-    }
+    avgWaitTime /= processId.size();
+    avgTurnaroundTime /= processId.size();
+    avgResponseTime /= processId.size();
 
-    float avg_tat = (float)totalT / n;
-    cout << "\nAverage Waiting Time = " << avg_wt << endl;
-    cout << "Average Turnaround Time = " << avg_tat << endl;
+    std::cout << "\nAverage Turnaround Time: " << avgTurnaroundTime << "\n";
+    std::cout << "Average Waiting Time: " << avgWaitTime << "\n";
+    std::cout << "Average Response Time: " << avgResponseTime << "\n";
 }

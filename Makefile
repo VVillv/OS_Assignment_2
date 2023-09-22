@@ -11,7 +11,7 @@ fifo:
 
 sjf:
 	@echo making sjf...
-	g++ -Wall -Werror -std=c++2a -g ./SFJ/*.cpp -o sjf
+	g++ -Wall -Werror -std=c++2a -g ./SJF/*.cpp -o sjf
 	@echo "done"
 
 rr:

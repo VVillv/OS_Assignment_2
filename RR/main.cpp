@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     std::string inputfile = argv[1];
     RR rrScheduler(inputfile);
 
-    rrScheduler.calculateRoundRobin();
+    rrScheduler.calcRoundRobin();
     rrScheduler.printResults();
 
     return 0;

@@ -23,4 +23,9 @@ public:
     static std::vector<int> turnaroundTime;
     static std::vector<int> responseTime;
 
-    rrSched
+    RR(const std::string &inputfile);
+    void calcRoundRobin();
+    void printResults();
+};
+
+#endif
