@@ -1,46 +1,50 @@
-#include "simulator.h"
-#include <algorithm>
+#include <iostream>
+using namespace std;
 
-std::vector<pcb> readyQueue;
-
-bool compareByBurstTime(const pcb &a, const pcb &b)
+void sjfScheduling(int bt[], int n)
 {
-    return a.getTotalTime() < b.getTotalTime();
-}
+    int p[20], wt[20], tat[20], total = 0, totalT = 0, pos, temp;
 
-void sjfScheduler()
-{
-    std::sort(readyQueue.begin(), readyQueue.end(), compareByBurstTime);
-
-    long long totalTurnaroundTime = 0;
-    long long totalWaitingTime = 0;
-    long long currentTime = 0;
-
-    for (pcb &currentProcess : readyQueue)
+    for (int i = 0; i < n; i++)
     {
-        // Calculate metrics
-        long long waitingTime = currentTime;
-        long long turnaroundTime = waitingTime + currentProcess.getTotalTime();
-        long long responseTime = waitingTime;
-
-        // Update totals for averages
-        totalTurnaroundTime += turnaroundTime;
-        totalWaitingTime += waitingTime;
-
-        // Display output for the current process
-        std::cout << "Process ID: " << currentProcess.getId()
-                  << ", Burst Time: " << currentProcess.getTotalTime()
-                  << ", Turnaround Time: " << turnaroundTime
-                  << ", Waiting Time: " << waitingTime
-                  << ", Response Time: " << responseTime << std::endl;
-
-        // Update current time
-        currentTime += currentProcess.getTotalTime();
+        p[i] = i + 1;
     }
 
-    // Display average metrics
-    int numProcesses = readyQueue.size();
-    std::cout << "Average Turnaround Time: " << (double)totalTurnaroundTime / numProcesses << std::endl;
-    std::cout << "Average Waiting Time: " << (double)totalWaitingTime / numProcesses << std::endl;
-    std::cout << "Average Response Time: " << (double)totalWaitingTime / numProcesses << std::endl;
+    for (int i = 0; i < n; i++)
+    {
+        pos = i;
+        for (int j = i + 1; j < n; j++)
+        {
+            if (bt[j] < bt[pos])
+                pos = j;
+        }
+        temp = bt[i];
+        bt[i] = bt[pos];
+        bt[pos] = temp;
+        temp = p[i];
+        p[i] = p[pos];
+        p[pos] = temp;
+    }
+
+    wt[0] = 0;
+    for (int i = 1; i < n; i++)
+    {
+        wt[i] = 0;
+        for (int j = 0; j < i; j++)
+            wt[i] += bt[j];
+        total += wt[i];
+    }
+
+    float avg_wt = (float)total / n;
+    cout << "\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n";
+    for (int i = 0; i < n; i++)
+    {
+        tat[i] = bt[i] + wt[i];
+        totalT += tat[i];
+        cout << "p" << p[i] << "\t\t" << bt[i] << "\t\t" << wt[i] << "\t\t" << tat[i] << endl;
+    }
+
+    float avg_tat = (float)totalT / n;
+    cout << "\nAverage Waiting Time = " << avg_wt << endl;
+    cout << "Average Turnaround Time = " << avg_tat << endl;
 }

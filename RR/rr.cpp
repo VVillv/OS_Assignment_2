@@ -1,52 +1,56 @@
-#include "simulator.h"
+#include <iostream>
+using namespace std;
 
-std::deque<pcb> readyQueue;
-
-void rrScheduler(int quantum)
+void roundRobinScheduling(int n, int arr_time[], int burst_time[], int time_slot)
 {
-    long long totalTurnaroundTime = 0;
-    long long totalWaitingTime = 0;
-    long long currentTime = 0;
+    int wait_time = 0, ta_time = 0, temp_burst_time[n], x = n;
 
-    while (!readyQueue.empty())
+    for (int i = 0; i < n; i++)
     {
-        pcb &currentProcess = readyQueue.front();
-
-        long long executionTime = std::min(quantum, static_cast<int>(currentProcess.getTotalTime()));
-
-        currentProcess.setTotalTime(currentProcess.getTotalTime() - executionTime);
-
-        // Calculate metrics
-        long long waitingTime = currentTime;
-        long long turnaroundTime = waitingTime + executionTime;
-        long long responseTime = waitingTime;
-
-        // Update totals for averages
-        totalTurnaroundTime += turnaroundTime;
-        totalWaitingTime += waitingTime;
-
-        // Display output for the current process
-        std::cout << "Process ID: " << currentProcess.getId()
-                  << ", Burst Time: " << executionTime
-                  << ", Turnaround Time: " << turnaroundTime
-                  << ", Waiting Time: " << waitingTime
-                  << ", Response Time: " << responseTime << std::endl;
-
-        // Update current time
-        currentTime += executionTime;
-
-        if (currentProcess.getTotalTime() > 0)
-        {
-            // If the process hasn't finished, add it back to the queue
-            readyQueue.push_back(currentProcess);
-        }
-
-        readyQueue.pop_front();
+        temp_burst_time[i] = burst_time[i];
     }
 
-    // Display average metrics
-    int numProcesses = readyQueue.size();
-    std::cout << "Average Turnaround Time: " << (double)totalTurnaroundTime / numProcesses << std::endl;
-    std::cout << "Average Waiting Time: " << (double)totalWaitingTime / numProcesses << std::endl;
-    std::cout << "Average Response Time: " << (double)totalWaitingTime / numProcesses << std::endl;
+    int total = 0, counter = 0;
+
+    cout << "Process ID Burst Time Turnaround Time Waiting Time\n";
+    for (int total = 0, i = 0; x != 0;)
+    {
+        if (temp_burst_time[i] <= time_slot && temp_burst_time[i] > 0)
+        {
+            total = total + temp_burst_time[i];
+            temp_burst_time[i] = 0;
+            counter = 1;
+        }
+        else if (temp_burst_time[i] > 0)
+        {
+            temp_burst_time[i] = temp_burst_time[i] - time_slot;
+            total += time_slot;
+        }
+        if (temp_burst_time[i] == 0 && counter == 1)
+        {
+            x--;
+            cout << i + 1 << "\t\t" << burst_time[i] << "\t\t" << total - arr_time[i] << "\t\t" << total - arr_time[i] - burst_time[i] << "\n";
+            wait_time = wait_time + total - arr_time[i] - burst_time[i];
+            ta_time += total - arr_time[i];
+            counter = 0;
+        }
+        if (i == n - 1)
+        {
+            i = 0;
+        }
+        else if (arr_time[i + 1] <= total)
+        {
+            i++;
+        }
+        else
+        {
+            i = 0;
+        }
+    }
+
+    float average_wait_time = wait_time * 1.0 / n;
+    float average_turnaround_time = ta_time * 1.0 / n;
+
+    cout << "\nAverage Waiting Time: " << average_wait_time << endl;
+    cout << "Average Turnaround Time: " << average_turnaround_time << endl;
 }
