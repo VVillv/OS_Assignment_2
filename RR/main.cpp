@@ -1,27 +1,18 @@
-#include "rr.cpp"
+#include "rr.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-    int n;
-    cout << "Enter Total Number of Processes: ";
-    cin >> n;
-
-    int arr_time[n], burst_time[n], temp_burst_time[n];
-    for (int i = 0; i < n; i++)
+    if (argc != 2)
     {
-        cout << "Enter Details of Process " << i + 1 << endl;
-        cout << "Arrival Time: ";
-        cin >> arr_time[i];
-        cout << "Burst Time: ";
-        cin >> burst_time[i];
-        temp_burst_time[i] = burst_time[i];
+        std::cerr << "Usage: " << argv[0] << " <inputfile>" << std::endl;
+        return 1;
     }
 
-    int time_slot;
-    cout << "Enter Time Slot: ";
-    cin >> time_slot;
+    std::string inputfile = argv[1];
+    RR rrScheduler(inputfile);
 
-    roundRobinScheduling(n, arr_time, burst_time, time_slot);
+    rrScheduler.calculateRoundRobin();
+    rrScheduler.printResults();
 
     return 0;
 }

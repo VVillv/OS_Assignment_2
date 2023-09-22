@@ -1,26 +1,20 @@
-#include "fifo.cpp"
+#include "fifo.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-    int pid[15];
-    int bt[15];
-    int n;
-
-    cout << "Enter the number of processes: ";
-    cin >> n;
-    cout << "Enter process id of all the processes: ";
-    for (int i = 0; i < n; i++)
+    if (argc != 2)
     {
-        cin >> pid[i];
-    }
-    cout << "Enter burst time of all the processes: ";
-    for (int i = 0; i < n; i++)
-    {
-        cin >> bt[i];
+        std::cerr << "Usage: " << argv[0] << " <inputfile>" << std::endl;
+        return 1;
     }
 
-    // Call the FCFS scheduling function
-    fcfsScheduling(pid, bt, n);
+    std::string inputfile = argv[1];
+    FIFO fifoScheduler(inputfile);
+
+    fifoScheduler.calcWaitTime();
+    fifoScheduler.calcTurnaroundTime();
+    fifoScheduler.calcResponseTime();
+    fifoScheduler.printResults();
 
     return 0;
 }

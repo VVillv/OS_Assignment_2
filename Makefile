@@ -1,25 +1,26 @@
-all: clean fifo sjf rr
+all: 
+	$(MAKE) clean
+	$(MAKE) fifo
+	$(MAKE) sjf
+	$(MAKE) rr
 
-# Compile the FIFO scheduler
 fifo: 
-	@echo "Compiling FIFO scheduler..."
-	g++ -Wall -Werror -std=c++20 -o fifo ./FIFO/*.cpp
+	@echo making fifo...
+	g++ -Wall -Werror -std=c++2a -g ./FIFO/*.cpp -o fifo
 	@echo "done"
 
-# Compile the SJF scheduler
 sjf:
-	@echo "Compiling SJF scheduler..."
-	g++ -Wall -Werror -std=c++20 -o sjf ./SJF/*.cpp
+	@echo making sjf...
+	g++ -Wall -Werror -std=c++2a -g ./SFJ/*.cpp -o sjf
 	@echo "done"
 
-# Compile the RR scheduler
 rr:
-	@echo "Compiling Round Robin scheduler..."
-	g++ -Wall -Werror -std=c++20 -o rr ./RR/*.cpp
-	@echo "done"
+	@echo making rr...
+	g++ -Wall -Werror -std=c++2a -g ./RR/*.cpp -o rr
+	@echo "done" 
 
-# Clean up the compiled files
+# Clean by going into each directory and running make clean
 clean: 
-	@echo "Cleaning up..."
+	@echo "cleaning up..."
 	@rm -rf fifo sjf rr *.dSYM
 	@echo "done"

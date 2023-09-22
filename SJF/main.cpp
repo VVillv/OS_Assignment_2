@@ -1,20 +1,13 @@
-#include "sjf.cpp"
+#include "sjf.h"
 
-int main()
+int main(int argc, char **argv)
 {
-    int n;
-    cout << "Enter number of process:";
-    cin >> n;
 
-    int bt[20];
-    cout << "\nEnter Burst Time:\n";
-    for (int i = 0; i < n; i++)
-    {
-        cout << "p" << i + 1 << ":";
-        cin >> bt[i];
-    }
-
-    sjfScheduling(bt, n);
+    SFJ sfj = SFJ(argv[1]);
+    sfj.calculateWaitTime();
+    sfj.calculateTurnaroundTime();
+    sfj.calculateResponseTime();
+    sfj.printResults();
 
     return 0;
 }

@@ -1,26 +1,89 @@
-#include <iostream>
-using namespace std;
+#include "fifo.h"
 
-void fcfsScheduling(int pid[], int bt[], int n)
+std::ifstream FIFO::in;
+std::vector<int> FIFO::processId;
+std::vector<int> FIFO::burstTime;
+std::vector<int> FIFO::waitTime;
+std::vector<int> FIFO::turnaroundTime;
+std::vector<int> FIFO::responseTime;
+
+FIFO::FIFO(const std::string &inputfile)
 {
-    int wt[15];
-    wt[0] = 0;
-    for (int i = 1; i < n; i++)
+    in.open(inputfile);
+    if (!in.is_open())
     {
-        wt[i] = bt[i - 1] + wt[i - 1];
+        std::cerr << "Error opening file: " << inputfile << std::endl;
+        exit(1);
     }
-    cout << "Process ID Burst Time Waiting Time Turnaround Time\n";
-    float twt = 0.0;
-    float tat = 0.0;
-    for (int i = 0; i < n; i++)
+
+    int id, burst;
+    while (std::getline(in, line)) // Read each line into 'line'
     {
-        cout << pid[i] << "\t\t" << bt[i] << "\t\t" << wt[i] << "\t\t" << bt[i] + wt[i] << "\n";
-        twt += wt[i];
-        tat += (wt[i] + bt[i]);
+
+        // get the id
+        std::string idstr = line.substr(0, line.find(","));
+        id = std::stoi(idstr);
+        // get the burst time
+        std::string burststr = line.substr(line.find(",") + 1);
+        burst = std::stoi(burststr);
+
+        // append to respective vectors
+        processId.push_back(id);
+        burstTime.push_back(burst);
+        waitTime.push_back(0);
+        turnaroundTime.push_back(0);
+        responseTime.push_back(0);
     }
-    float att, awt;
-    awt = twt / n;
-    att = tat / n;
-    cout << "Avg. waiting time= " << awt << endl;
-    cout << "Avg. turnaround time= " << att << endl;
+    in.close(); // Don't forget to close the file
+}
+
+void FIFO::calcWaitTime()
+{
+    waitTime[0] = 0;
+    for (size_t i = 1; i < processId.size(); ++i)
+    {
+        waitTime[i] = waitTime[i - 1] + burstTime[i - 1];
+    }
+}
+
+void FIFO::calcTurnaroundTime()
+{
+    for (size_t i = 0; i < processId.size(); ++i)
+    {
+        turnaroundTime[i] = waitTime[i] + burstTime[i];
+    }
+}
+
+void FIFO::calcResponseTime()
+{
+    responseTime[0] = 0;
+    for (size_t i = 1; i < processId.size(); ++i)
+    {
+        responseTime[i] = waitTime[i];
+    }
+}
+
+void FIFO::printResults()
+{
+    double totalWait = 0.0, totalTurnaround = 0.0, totalResponse = 0.0;
+
+    std::cout << "Process ID | Burst Time | Wait Time | Turnaround Time | Response Time" << std::endl;
+
+    for (size_t i = 0; i < processId.size(); ++i)
+    {
+        std::cout << processId[i] << "\t\t" << burstTime[i] << "\t\t" << waitTime[i] << "\t\t" << turnaroundTime[i] << "\t\t" << responseTime[i] << std::endl;
+
+        totalWait += waitTime[i];
+        totalTurnaround += turnaroundTime[i];
+        totalResponse += responseTime[i];
+    }
+
+    avgWaitTime = totalWait / processId.size();
+    avgTurnaroundTime = totalTurnaround / processId.size();
+    avgResponseTime = totalResponse / processId.size();
+
+    std::cout << std::endl
+              << "Average Wait Time: " << avgWaitTime << std::endl;
+    std::cout << "Average Turnaround Time: " << avgTurnaroundTime << std::endl;
+    std::cout << "Average Response Time: " << avgResponseTime << std::endl;
 }
