@@ -39,9 +39,8 @@ RR::RR(const std::string &inputfile)
 
 #include "rr.h"
 
-void RR::calcRoundRobin()
+void RR::calcRoundRobin(int quantum)
 {
-    const int time_slot = 10; // Set your desired time slot here
     int total = 0;
 
     while (true)
@@ -54,7 +53,7 @@ void RR::calcRoundRobin()
             {
                 allProcessesCompleted = false;
 
-                if (burstTime[i] <= time_slot)
+                if (burstTime[i] <= quantum)
                 {
                     total += burstTime[i];
                     waitTime[i] = total - burstTime[i];
@@ -66,10 +65,10 @@ void RR::calcRoundRobin()
                 }
                 else
                 {
-                    total += time_slot;
-                    burstTime[i] -= time_slot;
+                    total += quantum;
+                    burstTime[i] -= quantum;
                     if (responseTime[i] == 0) // Only update response time if it's not set yet
-                        responseTime[i] = total - time_slot;
+                        responseTime[i] = total - quantum;
                 }
             }
         }

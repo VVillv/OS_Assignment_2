@@ -24,7 +24,7 @@ public:
     static std::vector<int> responseTime;
 
     RR(const std::string &inputfile);
-    void calcRoundRobin();
+    void calcRoundRobin(int quantum);
     void printResults();
 };
 
